@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>資料管理系統 - _images</title>
+    <title>資料管理系統 (含圖片壓縮)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --primary: #4f46e5; --bg: #f1f5f9; }
@@ -15,21 +15,20 @@
         .form-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: #64748b; }
         input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; }
         button:disabled { background: #94a3b8; }
-        .table-wrapper { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: white; }
         th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
-        .tag { background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; border: 1px solid #e2e8f0; }
-        .thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; cursor: pointer; }
+        .thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; }
+        #status-msg { font-size: 0.75rem; color: #6366f1; margin-top: 5px; display: block; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2>錄入新資料</h2>
+        <h2>錄入資料 (自動壓縮)</h2>
         <div class="form-group">
             <label>名稱 (name)</label>
             <input type="text" id="name">
@@ -37,98 +36,103 @@
         <div class="form-row">
             <div class="form-group">
                 <label>創作年份 (create_time)</label>
-                <input type="text" id="create_time" placeholder="例如: 2026">
+                <input type="text" id="create_time">
             </div>
             <div class="form-group">
-                <label>上傳圖片 (_images)</label>
+                <label>圖片 (_images)</label>
                 <input type="file" id="file-upload" accept="image/*">
+                <span id="status-msg"></span>
             </div>
         </div>
         <div class="form-row">
-            <div class="form-group">
-                <label>分類 1 (sort_1) *</label>
-                <input type="text" id="sort_1" required>
-            </div>
-            <div class="form-group">
-                <label>分類 2 (sort_2)</label>
-                <input type="text" id="sort_2">
-            </div>
+            <div class="form-group"><label>分類 1 *</label><input type="text" id="sort_1" required></div>
+            <div class="form-group"><label>分類 2</label><input type="text" id="sort_2"></div>
         </div>
         <div class="form-row">
-            <div class="form-group">
-                <label>媒介 1 (medium_1) *</label>
-                <input type="text" id="medium_1" required>
-            </div>
-            <div class="form-group">
-                <label>媒介 2 (medium_2)</label>
-                <input type="text" id="medium_2">
-            </div>
+            <div class="form-group"><label>媒介 1 *</label><input type="text" id="medium_1" required></div>
+            <div class="form-group"><label>媒介 2</label><input type="text" id="medium_2"></div>
         </div>
         <div class="form-group">
-            <label>標籤 (tag_1 / 2 / 3)</label>
+            <label>標籤</label>
             <div style="display: flex; gap: 5px;">
                 <input type="text" id="tag_1" placeholder="T1">
                 <input type="text" id="tag_2" placeholder="T2">
                 <input type="text" id="tag_3" placeholder="T3">
             </div>
         </div>
-        <button onclick="handleSubmission()" id="submit-btn">儲存並上傳至 _images</button>
+        <button onclick="handleSubmission()" id="submit-btn">儲存並上傳</button>
     </div>
 
     <div class="card">
         <h2>資料清單</h2>
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>預覽</th>
-                        <th>年份</th>
-                        <th>名稱</th>
-                        <th>分類 / 媒介</th>
-                        <th>標籤</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody id="data-list"></tbody>
-            </table>
-        </div>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>預覽</th>
+                    <th>年份</th>
+                    <th>名稱</th>
+                    <th>標籤</th>
+                    <th>媒介</th>
+                </tr>
+            </thead>
+            <tbody id="data-list"></tbody>
+        </table>
     </div>
 </div>
 
 <script>
-    // --- 1. 配置區域 ---
     const SUPABASE_URL = 'https://radatxqulgsuihwizmiv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_001YvHQRMtLu7jFYdhymiA_5xxoik_v';
-    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // --- 2. 顯示邏輯 ---
+    // --- 圖片壓縮核心函數 ---
+    async function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // 限制最大寬度為 1200 像素
+                    const MAX_WIDTH = 1200;
+                    if (width > MAX_WIDTH) {
+                        height = (MAX_WIDTH / width) * height;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // 輸出為 jpeg 並設定品質為 0.7 (70%)
+                    canvas.toBlob((blob) => {
+                        resolve(blob);
+                    }, 'image/jpeg', 0.7);
+                };
+            };
+        });
+    }
+
     function renderRow(item) {
         const tbody = document.getElementById('data-list');
         const tr = document.createElement('tr');
-        
-        const imgTag = item.file_url 
-            ? `<img src="${item.file_url}" class="thumb" onclick="window.open(this.src)">` 
-            : '<span style="color:#ccc">N/A</span>';
-
         tr.innerHTML = `
-            <td>${imgTag}</td>
-            <td><strong>${item.create_time || '-'}</strong></td>
+            <td>${item.file_url ? `<img src="${item.file_url}" class="thumb">` : 'N/A'}</td>
+            <td>${item.create_time || '-'}</td>
             <td>${item.name || '-'}</td>
-            <td>
-                <small>${item.sort_1}${item.sort_2 ? ' / ' + item.sort_2 : ''}</small><br>
-                <small style="color:#64748b">${item.medium_1}${item.medium_2 ? ' / ' + item.medium_2 : ''}</small>
-            </td>
-            <td>
-                ${item.tag_1 ? `<span class="tag">${item.tag_1}</span>` : ''}
-                ${item.tag_2 ? `<span class="tag">${item.tag_2}</span>` : ''}
-                ${item.tag_3 ? `<span class="tag">${item.tag_3}</span>` : ''}
-            </td>
-            <td>${item.file_url ? `<a href="${item.file_url}" target="_blank" style="color:var(--primary)">查看</a>` : '-'}</td>
+            <td>${item.tag_1 || ''} ${item.tag_2 || ''}</td>
+            <td>${item.medium_1 || ''}</td>
         `;
         tbody.prepend(tr);
     }
 
-    // --- 3. 初始載入 ---
     async function loadData() {
         const { data, error } = await _supabase.from('data').select('*').order('created_at', { ascending: true });
         if (!error && data) {
@@ -137,10 +141,11 @@
         }
     }
 
-    // --- 4. 提交邏輯 ---
     async function handleSubmission() {
         const btn = document.getElementById('submit-btn');
-        const file = document.getElementById('file-upload').files[0];
+        const status = document.getElementById('status-msg');
+        const fileInput = document.getElementById('file-upload');
+        const originalFile = fileInput.files[0];
 
         const payload = {
             name: document.getElementById('name').value || null,
@@ -155,48 +160,42 @@
             file_url: null
         };
 
-        if (!payload.sort_1 || !payload.medium_1) return alert('分類 1 與 媒介 1 為必填！');
+        if (!payload.sort_1 || !payload.medium_1) return alert('必填欄位缺失');
 
         btn.disabled = true;
-        btn.innerText = '正在處理上傳...';
-
+        
         try {
-            // 上傳至 _images Bucket
-            if (file) {
-                const fileName = `${Date.now()}_${file.name}`;
+            if (originalFile) {
+                status.innerText = '正在壓縮並上傳...';
+                
+                // 執行壓縮
+                const compressedBlob = await compressImage(originalFile);
+                const fileName = `${Date.now()}.jpg`;
+
+                // 上傳壓縮後的 Blob
                 const { error: uploadError } = await _supabase.storage
                     .from('_images')
-                    .upload(fileName, file);
+                    .upload(fileName, compressedBlob, { contentType: 'image/jpeg' });
 
                 if (uploadError) throw uploadError;
 
-                const { data: urlData } = _supabase.storage
-                    .from('_images')
-                    .getPublicUrl(fileName);
-                
+                const { data: urlData } = _supabase.storage.from('_images').getPublicUrl(fileName);
                 payload.file_url = urlData.publicUrl;
             }
 
-            // 存入 data 資料表
             const { error: dbError } = await _supabase.from('data').insert([payload]);
             if (dbError) throw dbError;
 
-            // 清空輸入
-            ['name','create_time','sort_1','sort_2','medium_1','medium_2','tag_1','tag_2','tag_3'].forEach(id => {
-                document.getElementById(id).value = '';
-            });
-            document.getElementById('file-upload').value = '';
-            
+            // 清空
+            fileInput.value = '';
+            status.innerText = '上傳成功！';
+            loadData();
         } catch (err) {
             alert('錯誤: ' + err.message);
         } finally {
             btn.disabled = false;
-            btn.innerText = '儲存並上傳至 _images';
         }
     }
-
-    // 即時更新
-    _supabase.channel('room1').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'data' }, p => renderRow(p.new)).subscribe();
 
     loadData();
 </script>
