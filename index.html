@@ -1,364 +1,204 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Supabase 完整資料管理系統</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>資料管理系統 - _images</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-      :root {
-        --primary: #6366f1;
-        --bg: #f8fafc;
-        --card: #ffffff;
-      }
-      body {
-        font-family: 'Microsoft JhengHei', system-ui, sans-serif;
-        margin: 0;
-        background: var(--bg);
-        color: #1e293b;
-        padding: 20px;
-      }
-
-      .container {
-        max-width: 1300px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 400px 1fr;
-        gap: 25px;
-      }
-
-      /* 卡片與表單樣式 */
-      .card {
-        background: var(--card);
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      }
-      h2 {
-        margin-top: 0;
-        font-size: 1.25rem;
-        border-left: 4px solid var(--primary);
-        padding-left: 10px;
-        color: #334155;
-        margin-bottom: 20px;
-      }
-
-      .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 15px;
-      }
-      .form-group {
-        margin-bottom: 15px;
-      }
-      label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 5px;
-        color: #64748b;
-      }
-      input[type='text'],
-      input[type='file'] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #cbd5e1;
-        border-radius: 6px;
-        box-sizing: border-box;
-        transition: 0.2s;
-        font-size: 0.9rem;
-      }
-      input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-      }
-
-      button {
-        width: 100%;
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 1rem;
-        margin-top: 10px;
-      }
-      button:disabled {
-        background: #94a3b8;
-        cursor: not-allowed;
-      }
-
-      /* 表格樣式 */
-      .table-wrapper {
-        overflow-x: auto;
-        background: white;
-        border-radius: 8px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.85rem;
-      }
-      th {
-        background: #f1f5f9;
-        text-align: left;
-        padding: 12px;
-        border-bottom: 2px solid #e2e8f0;
-        color: #475569;
-        white-space: nowrap;
-      }
-      td {
-        padding: 12px;
-        border-bottom: 1px solid #e2e8f0;
-        vertical-align: middle;
-      }
-      tr:hover {
-        background: #f8fafc;
-      }
-
-      .tag {
-        background: #eff6ff;
-        color: #1d4ed8;
-        padding: 2px 8px;
-        border-radius: 99px;
-        font-size: 0.75rem;
-        margin-right: 4px;
-        border: 1px solid #dbeafe;
-      }
-      .file-link {
-        color: var(--primary);
-        text-decoration: none;
-        font-weight: bold;
-        border: 1px solid var(--primary);
-        padding: 3px 7px;
-        border-radius: 4px;
-      }
-      .file-link:hover {
-        background: var(--primary);
-        color: white;
-      }
+        :root { --primary: #4f46e5; --bg: #f1f5f9; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        .container { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 400px 1fr; gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        h2 { margin-top: 0; font-size: 1.25rem; color: var(--primary); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: #64748b; }
+        input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; }
+        button:disabled { background: #94a3b8; }
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; background: white; }
+        th { background: #f8fafc; text-align: left; padding: 12px; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .tag { background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 4px; border: 1px solid #e2e8f0; }
+        .thumb { width: 45px; height: 45px; object-fit: cover; border-radius: 4px; cursor: pointer; }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="card">
-        <h2>錄入資料</h2>
-        <div id="data-form">
-          <div class="form-group">
-            <label>名稱 (Name)</label>
-            <input type="text" id="name" placeholder="項目或作品名稱" />
-          </div>
+</head>
+<body>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label>創作年份 (Create Time)</label>
-              <input type="text" id="create_time" placeholder="2024" />
-            </div>
-            <div class="form-group">
-              <label>附件上傳</label>
-              <input type="file" id="file-upload" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>分類 1 (Sort 1) *</label>
-              <input type="text" id="sort_1" required />
-            </div>
-            <div class="form-group">
-              <label>分類 2 (Sort 2)</label>
-              <input type="text" id="sort_2" />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>媒介 1 (Medium 1) *</label>
-              <input type="text" id="medium_1" required />
-            </div>
-            <div class="form-group">
-              <label>媒介 2 (Medium 2)</label>
-              <input type="text" id="medium_2" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>標籤 (Tag 1 / 2 / 3)</label>
-            <div style="display: flex; gap: 5px">
-              <input type="text" id="tag_1" placeholder="標籤1" />
-              <input type="text" id="tag_2" placeholder="標籤2" />
-              <input type="text" id="tag_3" placeholder="標籤3" />
-            </div>
-          </div>
-
-          <button onclick="handleSubmission()" id="submit-btn">
-            儲存並上傳資料
-          </button>
+<div class="container">
+    <div class="card">
+        <h2>錄入新資料</h2>
+        <div class="form-group">
+            <label>名稱 (name)</label>
+            <input type="text" id="name">
         </div>
-      </div>
-
-      <div class="card">
-        <h2>資料管理列表</h2>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>年份</th>
-                <th>名稱</th>
-                <th>分類 (1/2)</th>
-                <th>媒介 (1/2)</th>
-                <th>標籤群</th>
-                <th>檔案</th>
-              </tr>
-            </thead>
-            <tbody id="data-list"></tbody>
-          </table>
+        <div class="form-row">
+            <div class="form-group">
+                <label>創作年份 (create_time)</label>
+                <input type="text" id="create_time" placeholder="例如: 2026">
+            </div>
+            <div class="form-group">
+                <label>上傳圖片 (_images)</label>
+                <input type="file" id="file-upload" accept="image/*">
+            </div>
         </div>
-      </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>分類 1 (sort_1) *</label>
+                <input type="text" id="sort_1" required>
+            </div>
+            <div class="form-group">
+                <label>分類 2 (sort_2)</label>
+                <input type="text" id="sort_2">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>媒介 1 (medium_1) *</label>
+                <input type="text" id="medium_1" required>
+            </div>
+            <div class="form-group">
+                <label>媒介 2 (medium_2)</label>
+                <input type="text" id="medium_2">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>標籤 (tag_1 / 2 / 3)</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="text" id="tag_1" placeholder="T1">
+                <input type="text" id="tag_2" placeholder="T2">
+                <input type="text" id="tag_3" placeholder="T3">
+            </div>
+        </div>
+        <button onclick="handleSubmission()" id="submit-btn">儲存並上傳至 _images</button>
     </div>
 
-    <script>
-      // --- 1. 初始化 Supabase ---
-      const SUPABASE_URL = 'https://radatxqulgsuihwizmiv.supabase.co';
-      const SUPABASE_ANON_KEY = 'sb_publishable_001YvHQRMtLu7jFYdhymiA_5xxoik_v';
-      const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    <div class="card">
+        <h2>資料清單</h2>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>預覽</th>
+                        <th>年份</th>
+                        <th>名稱</th>
+                        <th>分類 / 媒介</th>
+                        <th>標籤</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="data-list"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
-      // --- 2. 渲染 UI ---
-      function renderRow(item) {
+<script>
+    // --- 1. 配置區域 ---
+    const SUPABASE_URL = 'https://radatxqulgsuihwizmiv.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_001YvHQRMtLu7jFYdhymiA_5xxoik_v';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- 2. 顯示邏輯 ---
+    function renderRow(item) {
         const tbody = document.getElementById('data-list');
         const tr = document.createElement('tr');
-
-        // 處理檔案下載連結（這裡假設你的資料表中有個 file_url 欄位存網址）
-        // 如果沒有 file_url，請確保資料表有這個 column
-        const fileContent = item.file_url
-          ? `<a href="${item.file_url}" target="_blank" class="file-link">查看</a>`
-          : `<span style="color:#ccc">無</span>`;
+        
+        const imgTag = item.file_url 
+            ? `<img src="${item.file_url}" class="thumb" onclick="window.open(this.src)">` 
+            : '<span style="color:#ccc">N/A</span>';
 
         tr.innerHTML = `
-            <td style="font-weight:bold">${item.create_time || '-'}</td>
+            <td>${imgTag}</td>
+            <td><strong>${item.create_time || '-'}</strong></td>
             <td>${item.name || '-'}</td>
             <td>
-                <div>${item.sort_1}</div>
-                <div style="font-size:0.75rem; color:#94a3b8">${
-                  item.sort_2 || ''
-                }</div>
-            </td>
-            <td>
-                <div>${item.medium_1}</div>
-                <div style="font-size:0.75rem; color:#94a3b8">${
-                  item.medium_2 || ''
-                }</div>
+                <small>${item.sort_1}${item.sort_2 ? ' / ' + item.sort_2 : ''}</small><br>
+                <small style="color:#64748b">${item.medium_1}${item.medium_2 ? ' / ' + item.medium_2 : ''}</small>
             </td>
             <td>
                 ${item.tag_1 ? `<span class="tag">${item.tag_1}</span>` : ''}
                 ${item.tag_2 ? `<span class="tag">${item.tag_2}</span>` : ''}
                 ${item.tag_3 ? `<span class="tag">${item.tag_3}</span>` : ''}
             </td>
-            <td>${fileContent}</td>
+            <td>${item.file_url ? `<a href="${item.file_url}" target="_blank" style="color:var(--primary)">查看</a>` : '-'}</td>
         `;
         tbody.prepend(tr);
-      }
+    }
 
-      // --- 3. 獲取資料 ---
-      async function loadData() {
-        const { data, error } = await _supabase
-          .from('data')
-          .select('*')
-          .order('created_at', { ascending: true });
-
+    // --- 3. 初始載入 ---
+    async function loadData() {
+        const { data, error } = await _supabase.from('data').select('*').order('created_at', { ascending: true });
         if (!error && data) {
-          document.getElementById('data-list').innerHTML = '';
-          data.forEach(renderRow);
+            document.getElementById('data-list').innerHTML = '';
+            data.forEach(renderRow);
         }
-      }
+    }
 
-      // --- 4. 提交數據 ---
-      async function handleSubmission() {
+    // --- 4. 提交邏輯 ---
+    async function handleSubmission() {
         const btn = document.getElementById('submit-btn');
-        const fileInput = document.getElementById('file-upload');
-        const file = fileInput.files[0];
+        const file = document.getElementById('file-upload').files[0];
 
         const payload = {
-          name: document.getElementById('name').value || null,
-          create_time: document.getElementById('create_time').value || null,
-          sort_1: document.getElementById('sort_1').value,
-          sort_2: document.getElementById('sort_2').value || null,
-          medium_1: document.getElementById('medium_1').value || null,
-          medium_2: document.getElementById('medium_2').value || null,
-          tag_1: document.getElementById('tag_1').value || null,
-          tag_2: document.getElementById('tag_2').value || null,
-          tag_3: document.getElementById('tag_3').value || null,
-          file_url: null, // 用於儲存上傳後的連結
+            name: document.getElementById('name').value || null,
+            create_time: document.getElementById('create_time').value || null,
+            sort_1: document.getElementById('sort_1').value,
+            sort_2: document.getElementById('sort_2').value || null,
+            medium_1: document.getElementById('medium_1').value,
+            medium_2: document.getElementById('medium_2').value || null,
+            tag_1: document.getElementById('tag_1').value || null,
+            tag_2: document.getElementById('tag_2').value || null,
+            tag_3: document.getElementById('tag_3').value || null,
+            file_url: null
         };
 
-        if (!payload.sort_1 || !payload.medium_1)
-          return alert('分類 1 與 媒介 1 為必填項！');
+        if (!payload.sort_1 || !payload.medium_1) return alert('分類 1 與 媒介 1 為必填！');
 
         btn.disabled = true;
-        btn.innerText = '處理中...';
+        btn.innerText = '正在處理上傳...';
 
         try {
-          // A. 處理檔案上傳
-          if (file) {
-            const fileName = `data_${Date.now()}_${file.name}`;
-            const { error: uploadError } = await _supabase.storage
-              .from('chat_images')
-              .upload(fileName, file);
+            // 上傳至 _images Bucket
+            if (file) {
+                const fileName = `${Date.now()}_${file.name}`;
+                const { error: uploadError } = await _supabase.storage
+                    .from('_images')
+                    .upload(fileName, file);
 
-            if (uploadError) throw uploadError;
+                if (uploadError) throw uploadError;
 
-            const { data: urlData } = _supabase.storage
-              .from('chat_images')
-              .getPublicUrl(fileName);
+                const { data: urlData } = _supabase.storage
+                    .from('_images')
+                    .getPublicUrl(fileName);
+                
+                payload.file_url = urlData.publicUrl;
+            }
 
-            payload.file_url = urlData.publicUrl;
-          }
+            // 存入 data 資料表
+            const { error: dbError } = await _supabase.from('data').insert([payload]);
+            if (dbError) throw dbError;
 
-          // B. 插入資料庫
-          const { error: dbError } = await _supabase
-            .from('data')
-            .insert([payload]);
-          if (dbError) throw dbError;
-
-          // C. 重置表單
-          [
-            'name',
-            'create_time',
-            'sort_1',
-            'sort_2',
-            'medium_1',
-            'medium_2',
-            'tag_1',
-            'tag_2',
-            'tag_3',
-          ].forEach((id) => {
-            document.getElementById(id).value = '';
-          });
-          fileInput.value = '';
+            // 清空輸入
+            ['name','create_time','sort_1','sort_2','medium_1','medium_2','tag_1','tag_2','tag_3'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+            document.getElementById('file-upload').value = '';
+            
         } catch (err) {
-          alert('操作失敗: ' + err.message);
+            alert('錯誤: ' + err.message);
         } finally {
-          btn.disabled = false;
-          btn.innerText = '儲存並上傳資料';
+            btn.disabled = false;
+            btn.innerText = '儲存並上傳至 _images';
         }
-      }
+    }
 
-      // --- 5. Realtime 監聽 ---
-      _supabase
-        .channel('db_changes')
-        .on(
-          'postgres_changes',
-          { event: 'INSERT', schema: 'public', table: 'data' },
-          (p) => renderRow(p.new)
-        )
-        .subscribe();
+    // 即時更新
+    _supabase.channel('room1').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'data' }, p => renderRow(p.new)).subscribe();
 
-      // 啟動
-      loadData();
-    </script>
-  </body>
+    loadData();
+</script>
+</body>
 </html>
