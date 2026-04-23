@@ -83,7 +83,7 @@
 <script>
     const SUPABASE_URL = 'https://radatxqulgsuihwizmiv.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_001YvHQRMtLu7jFYdhymiA_5xxoik_v';
-    const supabase = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- 圖片壓縮核心函數 ---
     async function compressImage(file) {
