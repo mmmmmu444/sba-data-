@@ -224,8 +224,8 @@
     <script>
       // --- 1. 初始化 Supabase ---
       const SUPABASE_URL = 'https://radatxqulgsuihwizmiv.supabase.co';
-      const SUPABASE_ANON_KEY = 'vhttps://radatxqulgsuihwizmiv.supabase.co';
-      const supabase = lib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const SUPABASE_ANON_KEY = 'sb_publishable_001YvHQRMtLu7jFYdhymiA_5xxoik_v';
+      const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       // --- 2. 渲染 UI ---
       function renderRow(item) {
@@ -265,7 +265,7 @@
 
       // --- 3. 獲取資料 ---
       async function loadData() {
-        const { data, error } = await supabase
+        const { data, error } = await _supabase
           .from('data')
           .select('*')
           .order('created_at', { ascending: true });
@@ -305,13 +305,13 @@
           // A. 處理檔案上傳
           if (file) {
             const fileName = `data_${Date.now()}_${file.name}`;
-            const { error: uploadError } = await supabase.storage
+            const { error: uploadError } = await _supabase.storage
               .from('chat_images')
               .upload(fileName, file);
 
             if (uploadError) throw uploadError;
 
-            const { data: urlData } = supabase.storage
+            const { data: urlData } = _supabase.storage
               .from('chat_images')
               .getPublicUrl(fileName);
 
@@ -319,7 +319,7 @@
           }
 
           // B. 插入資料庫
-          const { error: dbError } = await supabase
+          const { error: dbError } = await _supabase
             .from('data')
             .insert([payload]);
           if (dbError) throw dbError;
@@ -348,7 +348,7 @@
       }
 
       // --- 5. Realtime 監聽 ---
-      supabase
+      _supabase
         .channel('db_changes')
         .on(
           'postgres_changes',
